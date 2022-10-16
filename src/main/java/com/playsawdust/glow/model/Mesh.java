@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.playsawdust.glow.vecmath.Matrix3;
 import com.playsawdust.glow.vecmath.Vector2d;
 import com.playsawdust.glow.vecmath.Vector3d;
 
@@ -32,14 +33,14 @@ public class Mesh {
 		this.indices = indices;
 		this.vertexData = new Vertex[vertexBuffer.length];
 	}
-	/*
-	public void transform(Matrix3d matrix) {
+	
+	public void transform(Matrix3 matrix) {
 		for(int i=0; i<vertexBuffer.length; i++) {
 			vertexBuffer[i] = matrix.transform(vertexBuffer[i]);
 		}
 	}
-	
-	public void transform(Matrix4d matrix) {
+	/*
+	public void transform(Matrix4 matrix) {
 		for(int i=0; i<vertexBuffer.length; i++) {
 			vertexBuffer[i] = matrix.transform(vertexBuffer[i]);
 		}

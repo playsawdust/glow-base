@@ -10,23 +10,25 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Model implements Iterable<MeshConvertible> {
-	protected List<MeshConvertible> meshes = new ArrayList<>();
-	/*
-	public void transform(Matrix3d matrix) {
+import com.playsawdust.glow.vecmath.Matrix3;
+
+public class Model implements Iterable<Mesh> {
+	protected List<Mesh> meshes = new ArrayList<>();
+	
+	public void transform(Matrix3 matrix) {
 		for(Mesh mesh : meshes) mesh.transform(matrix);
 	}
-	
+	/*
 	public void transform(Matrix4d matrix) {
 		for(Mesh mesh : meshes) mesh.transform(matrix);
 	}*/
 	
-	public List<MeshConvertible> getMeshes() {
+	public List<Mesh> getMeshes() {
 		return meshes;
 	}
 	
 	@Override
-	public Iterator<MeshConvertible> iterator() {
+	public Iterator<Mesh> iterator() {
 		return meshes.iterator();
 	}
 }
