@@ -1,0 +1,48 @@
+plugins {
+	id "java-library"
+	id "maven-publish"
+	id "com.github.hierynomus.license" version "0.16.1"
+}
+
+java {
+	toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	api 'org.checkerframework:checker-qual:2.5.6'
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	it.options.release = 17
+}
+
+java {
+	//Only here for wide IDE compatibility
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+license {
+	header rootProject.file('HEADER')
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+	
+	repositories {
+		//TODO: Repositories to publish to
+	}
+}
