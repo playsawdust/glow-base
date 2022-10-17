@@ -1,3 +1,8 @@
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package com.playsawdust.glow.vecmath;
 
 import java.nio.DoubleBuffer;
@@ -11,6 +16,12 @@ public record Matrix3(double a, double b, double c, double d, double e, double f
 			0, 1, 0,
 			0, 0, 1);
 	
+	/**
+	 * Returns the determinant of this matrix. This is a series of sums and differences of diagonal products used to
+	 * determine certain subtle characteristics of a matrix. The main one is that nonzero determinants indicate that
+	 * a matrix can be inverted. A zero determinant means that we lost some information in this transformation, so we
+	 * can't reverse it.
+	 */
 	public double determinant() {
 		return
 				a * e * i
@@ -28,6 +39,8 @@ public record Matrix3(double a, double b, double c, double d, double e, double f
 	 * <p>The last (bottom) 3 cells of this matrix are ignored because the destination z value is being discarded,
 	 * and cells 3 and 6 are added directly because their coefficients are 1. This allows translation of 2d vectors,
 	 * and more generally, any affine transformation.
+	 * 
+	 * <p>See also {@link #transform(Vector3d)}
 	 */
 	public Vector2d transform(Vector2d value) {
 		return new Vector2d(
@@ -36,6 +49,9 @@ public record Matrix3(double a, double b, double c, double d, double e, double f
 				);
 	}
 	
+	/**
+	 * Returns the result of multiplying the passed-in vector by this matrix, transforming it.
+	 */
 	public Vector3d transform(Vector3d value) {
 		return new Vector3d(
 				value.x() * a + value.y() * b + value.z() * c,
@@ -79,8 +95,15 @@ public record Matrix3(double a, double b, double c, double d, double e, double f
 		buf.put((float) g); buf.put((float) h); buf.put((float) i);
 	}
 	
+	
+	
 	// Static helpers
 	
+	/**
+	 * Rotate around the X axis by the specified amount of radians.
+	 * 
+	 * <p>In a Y-up system this is the same as pitch.
+	 */
 	public static Matrix3 rotateX(double theta) {
 		return new Matrix3(
 				1, 0, 0,
@@ -89,6 +112,11 @@ public record Matrix3(double a, double b, double c, double d, double e, double f
 				);
 	}
 	
+	/**
+	 * Rotate around the Y axis by the specified amount of radians.
+	 * 
+	 * <p>In a Y-up system this is the same as yaw.
+	 */
 	public static Matrix3 rotateY(double theta) {
 		return new Matrix3(
 				Math.cos(theta), 0, Math.sin(theta),
@@ -97,6 +125,11 @@ public record Matrix3(double a, double b, double c, double d, double e, double f
 				);
 	}
 	
+	/**
+	 * Rotate around the Z axis by the specified amount of radians.
+	 * 
+	 * <p>In a Y-up system this is the same as roll.
+	 */
 	public static Matrix3 rotateZ(double theta) {
 		return new Matrix3(
 				Math.cos(theta), -Math.sin(theta), 0,

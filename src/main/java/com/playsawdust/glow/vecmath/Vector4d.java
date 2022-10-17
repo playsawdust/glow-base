@@ -107,11 +107,10 @@ public record Vector4d(double x, double y, double z, double w) {
 	 * reference frame.
 	 */
 	public static double dot(Vector4d a, Vector4d b) {
-		return  a.x * b.x - (
+		return  a.x * b.x +
 				a.y * b.y +
 				a.z * b.z +
-				a.w * b.w
-				);
+				a.w * b.w;
 	}
 	
 	/**
