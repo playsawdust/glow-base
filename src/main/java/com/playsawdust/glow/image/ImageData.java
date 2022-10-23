@@ -1,125 +1,39 @@
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package com.playsawdust.glow.image;
 
-import java.util.Arrays;
+import com.playsawdust.glow.image.color.Colors;
+import com.playsawdust.glow.image.color.LABColor;
+import com.playsawdust.glow.image.color.RGBColor;
+import com.playsawdust.glow.image.color.XYZColor;
 
-public class ImageData implements Sized, ImageDataHolder {
-	protected int width = 0;
-	protected int height = 0;
-	protected int[] data = new int[0];
-	
-	public ImageData() {}
-	
-	public ImageData(int width, int height) {
-		this.width = width;
-		this.height = height;
-		this.data = new int[width*height];
-	}
-	
-	public ImageData(int width, int height, int[] data) {
-		this.width = width;
-		this.height = height;
-		this.data = data;
-	}
-	
-	@Override
-	public int getWidth() { return this.width; }
-	
-	@Override
-	public int getHeight() { return this.height; }
-	
-	public int[] getData() { return this.data; }
-	
-	@Override
-	public void setPixel(int x, int y, int argb) {
-		if (x<0 || x>=width || y<0 || y>=height) return;
-		data[y*width + x] = argb;
-	}
-	
-	@Override
-	public int getPixel(int x, int y) {
-		if (x<0 || x>=width || y<0 || y>=height) return 0;
-		return data[y*width + x];
-	}
-	
-	public void clear() {
-		Arrays.fill(data, 0);
-	}
-	
-	public void clear(int clearColor) {
-		Arrays.fill(data, clearColor);
-	}
-	
-	public void resize(int width, int height) {
-		int[] newData = new int[width*height];
-		
-		int copyWidth = Math.min(this.width, width);
-		int copyHeight = Math.min(this.height, height);
-		
-		for(int y=0; y<copyHeight; y++) {
-			if (y>=height) break;
-			
-			System.arraycopy(data, y*this.width, newData, y*width, copyWidth);
-		}
-		
-		this.width = width;
-		this.height = height;
-		this.data = newData;
-		
-	}
-	
-	/** 
-	 * Copies a row of pixels into this image, as if they were transferred using getPixel and setPixel, but faster.
-	 *
-	 * <h1><font size="20">UNTESTED! UNFINISHED! MAY SEGFAULT!</font></h1>
-	 * <p>But when it's done, may drastically speed up non-BlendMode image operations.</b>
+/**
+ * Represents an object containing pixel image data. The object may or may not have extended precision.
+ */
+public interface ImageData extends Sized {
+	/**
+	 * Gets the value of the indicated pixel, packed as AARRGGBB (high-order to low-order bits), in gamma srgb color
+	 * space. for instance, 0xFFFF00FF is opaque, fully-saturated magenta.
+	 * 
+	 * <p>If the pixel is outside the image, transparent black will be returned.
 	 */
-	protected void copyPixels(ImageData src, int srcX, int srcY, int dstX, int dstY, int len) {
-		if (dstY<0 || dstY>=height) {
-			//destination is off the image, so skip the copy altogether
-			return;
-		} else if (srcY<0 || srcY>=src.height) {
-			//Take black for the whole copy
-			
-			if (dstX+src.width<=0 || dstX>=width) return; //the whole slice is off the destination page
-			
-			//Adjust destination params
-			if (dstX<0) {
-				//chop off stuff that's off the left edge
-				len += dstX;
-				dstX = 0;
-			}
-			
-			if (dstX+len>=width) {
-				//chop off stuff that's off the right edge
-				len = width-dstX;
-			}
-			
-			int ofs = dstY*width+dstX;
-			Arrays.fill(data, ofs, ofs+len, 0);
-		} else {
-			
-			if (dstX<0) {
-				//chop off stuff that's off the left edge
-				len += dstX;  //shorten len
-				srcX -= dstX; //move srcX to the right
-				dstX = 0;     //clamp dstX to zero
-			}
-			
-			if (srcX<0) {
-				//TODO: Take black from srcX..0, and then adjust params to the clipped image
-			}
-			
-			//TODO: Implement the actual System.arraycopy portion of this
-		}
-	}
-
-	@Override
-	public long getDeepPixel(int x, int y) {
-		return Colors.toDeepColor(getPixel(x, y));
-	}
-
-	@Override
-	public void setDeepPixel(int x, int y, long color) {
-		setPixel(x, y, Colors.toShallowColor(color));
-	}
+	int getSrgbPixel(int x, int y);
+	
+	/**
+	 * Sets the value of the pixel at the indicated coordinates. If the pixel is outside the image, nothing happens.
+	 */
+	void setPixel(int x, int y, int srgb);
+	
+	/**
+	 * Gets the value of the indicated pixel, as a linear (non-gamma, non-sRGB) RGB value with alpha.
+	 */
+	RGBColor getLinearPixel(int x, int y);
+	
+	void setPixel(int x, int y, RGBColor color);
+	
+	default void setPixel(int x, int y, XYZColor color) { setPixel(x,y, color.toRgb()); }
+	default void setPixel(int x, int y, LABColor color) { setPixel(x,y, color.toXyz(Colors.WHITEPOINT_D65).toRgb()); }
 }
