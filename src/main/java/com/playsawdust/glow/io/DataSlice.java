@@ -64,7 +64,7 @@ public interface DataSlice {
 	int read(long offset) throws IOException;
 	
 	/**
-	 * Gets the ByteOrder used for multi-byte reads. Defaults to ByteOrder.BIG_ENDIAN.
+	 * Gets the ByteOrder used for multi-byte reads. Defaults to {@link ByteOrder#BIG_ENDIAN}.
 	 */
 	ByteOrder getByteOrder();
 	

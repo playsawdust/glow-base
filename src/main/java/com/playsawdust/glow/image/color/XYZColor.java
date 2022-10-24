@@ -15,7 +15,11 @@ public record XYZColor(float alpha, float x, float y, float z) {
 	}
 	
 	public RGBColor toRgb() {
-		Vector3d result = Colors.CIEXYZ_TO_RGB.transform(new Vector3d(x, y, z));
+		float xc = x; if (xc<0) xc=0; if (xc>1) xc=1;
+		float yc = y; if (yc<0) yc=0; if (yc>1) yc=1;
+		float zc = z; if (zc<0) zc=0; if (zc>1) zc=1;
+		
+		Vector3d result = Colors.CIEXYZ_TO_RGB.transform(new Vector3d(xc, yc, zc));
 		return new RGBColor(alpha, result);
 	}
 	

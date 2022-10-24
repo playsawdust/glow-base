@@ -35,5 +35,5 @@ public interface ImageData extends Sized {
 	void setPixel(int x, int y, RGBColor color);
 	
 	default void setPixel(int x, int y, XYZColor color) { setPixel(x,y, color.toRgb()); }
-	default void setPixel(int x, int y, LABColor color) { setPixel(x,y, color.toXyz(Colors.WHITEPOINT_D65).toRgb()); }
+	default void setPixel(int x, int y, LABColor color) {setPixel(x,y, color.toXyz(Colors.WHITEPOINT_D65).toRgb()); }
 }
