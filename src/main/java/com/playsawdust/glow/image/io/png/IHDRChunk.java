@@ -12,10 +12,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.playsawdust.glow.io.DataBuilder;
 import com.playsawdust.glow.io.DataSlice;
 
 public class IHDRChunk extends PNGChunk {
 	public static final int TYPE_TAG = (byte)'I' << 24 | (byte)'H' << 16 | (byte)'D' << 8 | (byte)'R';
+	
+	public static final int COMPRESSION_PNG = 0;
+	public static final int FILTER_METHOD_NONE = 0;
+	public static final int INTERLACE_NONE = 0;
 	
 	public IHDRChunk(int width, int height) {
 		this.width = width;
@@ -23,7 +28,7 @@ public class IHDRChunk extends PNGChunk {
 	}
 	
 	public IHDRChunk(int chunkType, DataSlice data) throws IOException {
-		if (chunkType != TYPE_TAG) throw new IllegalArgumentException("IHDR data can only be read from a valid IHDR chunk.");
+		if (chunkType != TYPE_TAG) throw new IllegalArgumentException("Invalid chunk type tag.");
 		
 		width = data.readI32s();
 		height = data.readI32s();
@@ -39,9 +44,9 @@ public class IHDRChunk extends PNGChunk {
 	/* Size of each sample in bits */
 	public int bitDepth = 8;
 	public int colorType = PngImageIO.COLORTYPE_RGBA;
-	public int compression = 0;
-	public int filterMethod = 0;
-	public int interlaceMethod = 0;
+	public int compression = COMPRESSION_PNG;
+	public int filterMethod = FILTER_METHOD_NONE;
+	public int interlaceMethod = INTERLACE_NONE;
 	
 	@Override
 	public int getChunkType() {
@@ -50,17 +55,16 @@ public class IHDRChunk extends PNGChunk {
 
 	@Override
 	public DataSlice getRawData() throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream dout = new DataOutputStream(baos);
+		DataBuilder out = DataBuilder.create();
 		
-		dout.writeInt(width);
-		dout.writeInt(height);
-		dout.write(bitDepth);
-		dout.write(colorType);
-		dout.write(compression);
-		dout.write(filterMethod);
-		dout.write(interlaceMethod);
+		out.writeI32s(width);
+		out.writeI32s(height);
+		out.write(bitDepth);
+		out.write(colorType);
+		out.write(compression);
+		out.write(filterMethod);
+		out.write(interlaceMethod);
 		
-		return DataSlice.of(baos.toByteArray());
+		return out.toDataSlice();
 	}
 }

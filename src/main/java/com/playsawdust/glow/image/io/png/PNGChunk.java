@@ -8,12 +8,9 @@
  */
 package com.playsawdust.glow.image.io.png;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
-import java.util.zip.CheckedOutputStream;
 
 import com.playsawdust.glow.io.DataBuilder;
 import com.playsawdust.glow.io.DataSlice;
@@ -25,7 +22,6 @@ public abstract class PNGChunk {
 		int chunkType = in.readI32s();
 		byte[] chunkData = new byte[length];
 		in.copy(chunkData);
-		System.out.println("ChunkData: "+Arrays.toString(chunkData));
 		
 		DataSlice slice = DataSlice.of(chunkData);
 		long crc = in.readI32s() & 0xFFFFFFFFL;
@@ -45,24 +41,42 @@ public abstract class PNGChunk {
 			switch(chunkType) {
 			
 			case IHDRChunk.TYPE_TAG:
-				return new IHDRChunk(chunkType, slice);
+				try {
+					return new IHDRChunk(chunkType, slice);
+				} catch (Throwable t) {
+					return new RawPNGChunk(chunkType, slice);
+				}
 			
+			case IDATChunk.TYPE_TAG:
+				try {
+					return new IDATChunk(chunkType, slice);
+				} catch (Throwable t) {
+					return new RawPNGChunk(chunkType, slice);
+				}
+			
+			case TEXTChunk.TYPE_TAG:
+				try {
+					return new TEXTChunk(chunkType, slice);
+				} catch (Throwable t) {
+					return new RawPNGChunk(chunkType, slice);
+				}
+				
+			case ZTXTChunk.TYPE_TAG:
+				try {
+					return new ZTXTChunk(chunkType, slice);
+				} catch (Throwable t) {
+					return new RawPNGChunk(chunkType, slice);
+				}
+				
+			case IENDChunk.TYPE_TAG:
+				return new IENDChunk();
+				
 			default:
+				System.out.println("" + (char) ((chunkType >> 24) & 0xFF) + (char) ((chunkType >> 16) & 0xFF) + (char) ((chunkType >> 8) & 0xFF) + (char) (chunkType & 0xFF));
 				return new RawPNGChunk(chunkType, slice);
 			}
 			
 		}
-		//case IDATChunk.TYPE_TAG:
-		//	byte[] idatData = new byte[length];
-		//	in.readFully(idatData);
-		//	in.readInt(); //throw away the CRC
-		//	IDATChunk idat = new IDATChunk();
-		//	idat.data = idatData;
-		//	return idat;
-		//case IENDChunk.TYPE_TAG:
-		//	if (length>0) in.skip(length); //Specified to never happen but let's check anyway
-		//	in.readInt(); //throw away the CRC
-		//	return new IENDChunk();*/
 	}
 	
 	public abstract int getChunkType();
@@ -89,4 +103,25 @@ public abstract class PNGChunk {
 	}
 	
 	public abstract DataSlice getRawData() throws IOException;
+	
+	/**
+	 * Reads in a String from the current location of the DataSlice, stopping at the first null (zero) byte encountered.
+	 * Interprets the data as ISO 8859-1 character data as mandated by the W3C PNG standard. Consumes the null delimiter.
+	 */
+	protected String readNullDelimitedString(DataSlice in) throws IOException {
+		DataBuilder builder = DataBuilder.create();
+		int i = in.read();
+		while (i != 0) {
+			builder.write(i);
+			i = in.read();
+		}
+		return new String(builder.toByteArray(), StandardCharsets.ISO_8859_1);
+	}
+	
+	/**
+	 * Reads all remaining data in the chunk, and returns it as a byte[].
+	 */
+	protected byte[] readToEndOfChunk(DataSlice in) throws IOException {
+		return in.arraycopy(in.position(), (int) (in.length()-in.position()));
+	}
 }

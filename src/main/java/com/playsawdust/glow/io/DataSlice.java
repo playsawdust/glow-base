@@ -214,19 +214,41 @@ public interface DataSlice {
 	}
 	
 	/**
-	 * Copies a portion of this DataSlice out into a new DataSlice.
-	 * @param offset the start location of the copy
+	 * Copies a portion of this DataSlice out into a new in-memory DataSlice. May be significantly faster for in-memory
+	 * slices.
+	 * @param offset the offset in the destination
 	 * @param length the number of bytes to copy out
 	 * @return A DataSlice representing the copy.
 	 * @throws IOException if there was an error reading the data from the underlying medium.
 	 */
-	default DataSlice copy(long offset, int length) throws IOException {
-		if (length<0) throw new ArrayIndexOutOfBoundsException();
+	default ArrayDataSlice copy(long offset, int length) throws IOException {
+		return new ArrayDataSlice(arraycopy(offset, length));
+	}
+	
+	/**
+	 * Copies a portion of this DataSlice out into a new byte array. May be significantly faster for in-memory slices.
+	 * @param offset the start location of the copy
+	 * @param length how many bytes to copy out
+	 * @return a byte array containing a copy of the data buffered at that location
+	 * @throws IOException if there was an error reading the data from the underlying medium
+	 */
+	default byte[] arraycopy(long offset, int length) throws IOException {
+		if (offset<0 || length<0) throw new ArrayIndexOutOfBoundsException();
 		byte[] data = new byte[length];
 		for(int i=0; i<length; i++) {
 			data[i] = (byte) read(offset+i);
 		}
-		return new ArrayDataSlice(data);
+		return data;
+	}
+	
+	/**
+	 * Creates a byte array containing a copy of this Slice's buffered data. Does not move the read pointer. May be
+	 * significantly faster for in-memory slices.
+	 */
+	default byte[] toArray() throws IOException {
+		if (this.length() > 0x7FFFFFFFL) throw new ArrayIndexOutOfBoundsException("Arrays cannot be larger than "+0x7FFFFFFFL+" bytes.");
+		
+		return arraycopy(0, (int) this.length());
 	}
 	
 	/**
@@ -251,7 +273,7 @@ public interface DataSlice {
 		return new FileDataSlice(f);
 	}
 	
-	
+	public static DataSlice EMPTY = new ArrayDataSlice(new byte[0]);
 	
 	
 	//Utility methods to account for byte order

@@ -72,6 +72,13 @@ public class ArrayDataSlice implements DataSlice {
 		this.pointer = (int) (offset + length);
 		return result;
 	}
+	
+	@Override
+	public byte[] arraycopy(long offset, int length) throws IOException {
+		byte[] result = new byte[length];
+		System.arraycopy(data, (int) offset, result, 0, length);
+		return result;
+	}
 
 	@Override
 	public ByteOrder getByteOrder() {
