@@ -123,6 +123,14 @@ public interface DataSlice {
 	}
 	
 	/**
+	 * Reads four bytes and returns their value as a signed long
+	 * @see #setByteOrder(ByteOrder)
+	 */
+	public default long readI32u() throws IOException {
+		return (long) order(read(), read(), read(), read(), getByteOrder()) & 0xFFFFFFFFL;
+	}
+	
+	/**
 	 * Reads eight bytes and returns their value as a signed long
 	 * @see #setByteOrder(ByteOrder)
 	 */

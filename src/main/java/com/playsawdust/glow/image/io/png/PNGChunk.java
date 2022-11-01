@@ -68,6 +68,13 @@ public abstract class PNGChunk {
 					return new RawPNGChunk(chunkType, slice);
 				}
 				
+			case GammaChunk.TYPE_TAG:
+				try {
+					return new GammaChunk(chunkType, slice);
+				} catch (Throwable t) {
+					return new RawPNGChunk(chunkType, slice);
+				}
+				
 			case IENDChunk.TYPE_TAG:
 				return new IENDChunk();
 				

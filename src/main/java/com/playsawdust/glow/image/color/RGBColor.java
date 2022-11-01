@@ -49,4 +49,41 @@ public record RGBColor(float alpha, float r, float g, float b) {
 		
 		return a << 24 | r << 16 | g << 8 | b;
 	}
+	
+	/**
+	 * Returns a version of this color with opacity scaled to the specified value. If this is an opaque color, the
+	 * alpha of the returned color with be equal to the passed-in opacity. If this is a partially translucent color, the
+	 * returned color with have alpha of opacity * this.getAlpha()
+	 */
+	public RGBColor withOpacity(float opacity) {
+		return new RGBColor(alpha * opacity, r, g, b);
+	}
+	
+	/**
+	 * Returns a version of this color with a rescaled luminance. Values between 0 and 1 will darken the color, while
+	 * values greater than 1 will lighten it.
+	 */
+	public RGBColor withLuminance(float value) {
+		XYZColor xyz = toXyz();
+		XYZColor modified = new XYZColor(xyz.alpha(), xyz.x(), xyz.y()*value, xyz.z());
+		return modified.toRgb();
+	}
+	
+	/**
+	 * Returns a lighter version of this color.
+	 */
+	public RGBColor lighter(float amount) {
+		XYZColor xyz = toXyz();
+		XYZColor modified = new XYZColor(xyz.alpha(), xyz.x(), xyz.y()+amount, xyz.z());
+		return modified.toRgb();
+	}
+	
+	/**
+	 * Returns a darker version of this color.
+	 */
+	public RGBColor darker(float amount) {
+		XYZColor xyz = toXyz();
+		XYZColor modified = new XYZColor(xyz.alpha(), xyz.x(), xyz.y()-amount, xyz.z());
+		return modified.toRgb();
+	}
 }

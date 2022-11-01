@@ -126,6 +126,27 @@ public record Vector3d(double x, double y, double z) {
 				);
 	}
 	
+	/*//The result of this is not a rotor. it's a dot b + a ^ b but you're better off using outerProduct.
+	public static Rotor geometricProduct(Vector3d a, Vector3d b) {
+		double scalarPart = a.x * b.x + a.y * b.y + a.z * b.z;
+		double xyPart = a.x * b.y - a.y * b.x;
+		double yzPart = a.y * b.z - a.z * b.y;
+		double xzPart = a.x * b.z - a.z * b.x;
+		
+		return new Rotor(scalarPart, new Bivector(xyPart, xzPart, yzPart));
+	}*/
+	
+	/**
+	 * Produces the Bivector that both these vectors lie on.
+	 */
+	public static Bivector outerProduct(Vector3d a, Vector3d b) {
+		double xyPart = a.x * b.y - a.y * b.x;
+		double xzPart = a.x * b.z - a.z * b.x;
+		double yzPart = a.y * b.z - a.z * b.y;
+		
+		return new Bivector(xyPart, xzPart, yzPart);
+	}
+	
 	/**
 	 * Returns the scalar product of two vectors. Technically this is the length of 'a' times the length of 'b' times
 	 * the cosine of the angle between them.

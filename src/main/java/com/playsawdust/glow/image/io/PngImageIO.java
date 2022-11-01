@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-package com.playsawdust.glow.image.io.png;
+package com.playsawdust.glow.image.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.zip.InflaterOutputStream;
 
 import com.playsawdust.glow.image.SrgbImageData;
+import com.playsawdust.glow.image.io.png.IDATChunk;
+import com.playsawdust.glow.image.io.png.IHDRChunk;
+import com.playsawdust.glow.image.io.png.PNGChunk;
+import com.playsawdust.glow.image.io.png.PNGImageDataDecoder;
 import com.playsawdust.glow.io.ArrayDataBuilder;
 import com.playsawdust.glow.io.DataBuilder;
 import com.playsawdust.glow.io.DataSlice;
@@ -53,7 +57,6 @@ public class PngImageIO {
 		
 		inflater.flush();
 		byte[] decompressedImageData = baos.toByteArray();
-		System.out.println("Decompressed "+decompressedImageData.length+" bytes of image data. Header Found?: "+(header!=null));
 		
 		SrgbImageData result = new SrgbImageData(header.width, header.height);
 		PNGImageDataDecoder.decodeSrgb(DataSlice.of(decompressedImageData), result, header.colorType==COLORTYPE_RGBA);

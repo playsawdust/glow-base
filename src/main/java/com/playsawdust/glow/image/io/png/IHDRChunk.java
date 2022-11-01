@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.playsawdust.glow.image.io.PngImageIO;
 import com.playsawdust.glow.io.DataBuilder;
 import com.playsawdust.glow.io.DataSlice;
 
