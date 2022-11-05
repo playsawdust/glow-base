@@ -81,9 +81,9 @@ public interface BlendMode {
 			
 			return new RGBColor(
 					outAlpha,
-					lerp(r, dest.r(), srcAlpha),
-					lerp(g, dest.g(), srcAlpha),
-					lerp(b, dest.b(), srcAlpha)
+					lerp(r, dest.r(), 1-srcAlpha),
+					lerp(g, dest.g(), 1-srcAlpha),
+					lerp(b, dest.b(), 1-srcAlpha)
 					);
 		}
 	}

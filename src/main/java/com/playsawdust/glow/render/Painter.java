@@ -2,23 +2,25 @@ package com.playsawdust.glow.render;
 
 import java.util.Arrays;
 
+import static com.playsawdust.glow.image.RasterizerUtils.*;
+
 import com.playsawdust.glow.function.DoubleBiConsumer;
-import com.playsawdust.glow.image.Sized;
+import com.playsawdust.glow.image.ImageData;
 import com.playsawdust.glow.image.color.RGBColor;
 import com.playsawdust.glow.vecmath.Vector2d;
 
-public interface Painter<T extends Sized> {
-	default void drawImage(T image, int x, int y) {
+public interface Painter {
+	default void drawImage(ImageData image, int x, int y) {
 		drawImage(image, x, y, 0, 0, image.getWidth(), image.getHeight(), 1.0f);
 	}
 	
-	default void drawImage(T image, int x, int y, float opacity) {
+	default void drawImage(ImageData image, int x, int y, float opacity) {
 		drawImage(image, x, y, 0, 0, image.getWidth(), image.getHeight(), 1.0f);
 	}
 	
-	void drawImage(T image, int destX, int destY, int srcX, int srcY, int width, int height, float opacity);
+	void drawImage(ImageData image, int destX, int destY, int srcX, int srcY, int width, int height, float opacity);
 	
-	void drawTintImage(T image, int destX, int destY, int srcX, int srcY, int width, int height, RGBColor tintColor);
+	void drawTintImage(ImageData image, int destX, int destY, int srcX, int srcY, int width, int height, RGBColor tintColor);
 	
 	void drawPixel(int x, int y, RGBColor color);
 	
@@ -27,7 +29,9 @@ public interface Painter<T extends Sized> {
 		double dy = y2-y1;
 		double scale = Math.max(Math.abs(dx), Math.abs(dy));
 		if(scale == 0) {
-			//Since we divide by scale later, we can't proceed, but it's a good bet we want the first/last pixels
+			//Since we divide by scale later, we can't proceed, but this condition represents a zero-length line. The
+			//first and last pixels are the same, and we draw that pixel here to preserve fine edge details the best we
+			//can.
 			drawPixel((int) x1, (int) y1, color);
 			return;
 		}
@@ -50,7 +54,7 @@ public interface Painter<T extends Sized> {
 		Vector2d ab = new Vector2d(x2-x1, y2-y1);
 		ab.normalize();
 		
-		Vector2d normal = new Vector2d(ab.y(), -ab.x());
+		Vector2d normal = new Vector2d(ab.y(), -ab.x()).normalize();
 		normal = normal.multiply(lineWeight/2.0);
 		//System.out.println(normal);
 		
@@ -277,30 +281,5 @@ public interface Painter<T extends Sized> {
 		return Math.max(Math.max(i1, i2), Math.max(i3, i4));
 	}
 	
-	private static void bresenham(double x1, double y1, double x2, double y2, DoubleBiConsumer consumer) {
-		double dx = x2-x1;
-		double dy = y2-y1;
-		double scale = Math.max(Math.abs(dx), Math.abs(dy));
-		if(scale == 0) return; //Degenerate line skipped so we don't DivideByZero
-		dx /= scale;
-		dy /= scale;
-		
-		double xi = x1;
-		double yi = y1;
-		for(int i=0; i<(int)scale; i++) {
-			consumer.acceptAsDoubles(xi, yi);
-			xi += dx;
-			yi += dy;
-		}
-		consumer.acceptAsDoubles(xi, yi);
-	}
 	
-	//Used by drawQuadraticCurve to calculate quadratic bezier coordinates
-	private static double quadratic(double a, double b, double c, double t) {
-		double aTerm = c * Math.pow(t, 2);
-		double bTerm = b * 2 * t * (1 - t);
-		double cTerm = a * Math.pow((1 - t), 2);
-		
-		return aTerm + bTerm + cTerm;
-	}
 }

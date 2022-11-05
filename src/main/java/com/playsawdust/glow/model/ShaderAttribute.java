@@ -8,6 +8,7 @@
  */
 package com.playsawdust.glow.model;
 
+import com.playsawdust.glow.image.color.RGBColor;
 import com.playsawdust.glow.vecmath.Vector2d;
 import com.playsawdust.glow.vecmath.Vector3d;
 
@@ -32,4 +33,6 @@ public class ShaderAttribute<T> {
 	
 	public static final ShaderAttribute<Double> ROUGHNESS = new ShaderAttribute<>("roughness");
 	public static final ShaderAttribute<Double> METALNESS = new ShaderAttribute<>("metalness");
+	
+	public static final ShaderAttribute<RGBColor> DIFFUSE_COLOR = new ShaderAttribute<>("diffuse_color");
 }
