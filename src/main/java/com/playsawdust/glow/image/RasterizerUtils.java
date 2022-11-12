@@ -2,6 +2,7 @@ package com.playsawdust.glow.image;
 
 import com.playsawdust.glow.function.DoubleBiConsumer;
 import com.playsawdust.glow.vecmath.Rect2d;
+import com.playsawdust.glow.vecmath.Rect3d;
 import com.playsawdust.glow.vecmath.Vector2d;
 import com.playsawdust.glow.vecmath.Vector3d;
 
@@ -136,6 +137,10 @@ public class RasterizerUtils {
 	 * @return The derivative of the quadratic bezier curve at the corresponding t value.
 	 */
 	public static double quadraticDerivative(double a, double b, double c, double t) {
+		//This is less efficient but shows how the differential works out in terms of its constants
+		//return a * -2(1-t) + b * (2-4*t) + c * (2*t)
+		
+		//More efficient, simplified:
 		return (2 - 2*t) * (b - a) + (2*t) * (c - b);
 	}
 	
@@ -193,6 +198,34 @@ public class RasterizerUtils {
 	}
 	
 	/**
+	 * The second derivative of a quadratic bezier is a single point; it is invariant across t. It represents the change
+	 * in velocity (the acceleration of the conceptual point which is moving along the curve in time). Since a quadratic
+	 * bezier has constant acceleration we get our point.
+	 * @param a The first point in the curve.
+	 * @param b The middle (control) point.
+	 * @param c The last point in the curve.
+	 * @return The constant acceleration seen across the curve.
+	 */
+	public static double quadraticSecondDerivative(double a, double b, double c) {
+		return 2*a - 4*b + 2*c;
+	}
+	
+	public static Vector2d quadraticSecondDerivative(Vector2d a, Vector2d b, Vector2d c) {
+		return new Vector2d(
+				quadraticSecondDerivative(a.x(), b.x(), c.x()),
+				quadraticSecondDerivative(a.y(), b.y(), c.y())
+				);
+	}
+	
+	public static Vector3d quadraticSecondDerivative(Vector3d a, Vector3d b, Vector3d c) {
+		return new Vector3d(
+				quadraticSecondDerivative(a.x(), b.x(), c.x()),
+				quadraticSecondDerivative(a.y(), b.y(), c.y()),
+				quadraticSecondDerivative(a.z(), b.z(), c.z())
+				);
+	}
+	
+	/**
 	 * Returns a tight bounding box around a quadratic bezier curve.
 	 * @param a The first point in the curve.
 	 * @param b The middle (control) point.
@@ -244,5 +277,52 @@ public class RasterizerUtils {
 		}
 		
 		return new Rect2d(xmin, ymin, xmax-xmin, ymax-ymin);
+	}
+	
+	/**
+	 * Returns a tight bounding box around a 3d quadratic bezier curve.
+	 * @param a The first point in the curve.
+	 * @param b The middle (control) point.
+	 * @param c The last point in the curve.
+	 * @return A bounding box that precisely contains the curve.
+	 */
+	public static Rect3d quadraticBoundingBox(Vector3d a, Vector3d b, Vector3d c) {
+		double xmin = Math.min(a.x(), c.x());
+		double xmax = Math.max(a.x(), c.x());
+		double ymin = Math.min(a.y(), c.y());
+		double ymax = Math.max(a.y(), c.y());
+		double zmin = Math.min(a.z(), c.z());
+		double zmax = Math.max(a.z(), c.z());
+		
+		Vector3d d0 = quadraticDerivative(a, b, c, 0);
+		Vector3d d1 = quadraticDerivative(a, b, c, 1);
+		
+		double xSlope = d1.x() - d0.x(); if (xSlope==0) xSlope = 0.00000000001;
+		double ySlope = d1.y() - d0.y(); if (ySlope==0) ySlope = 0.00000000001;
+		double zSlope = d1.z() - d0.z(); if (zSlope==0) zSlope = 0.00000000001;
+		
+		double xInterceptT = -d0.x() / xSlope;
+		double yInterceptT = -d0.y() / ySlope;
+		double zInterceptT = -d0.z() / zSlope;
+		
+		if (xInterceptT >= 0 && xInterceptT <= 1) {
+			double xSpot = quadratic(a.x(), b.x(), c.x(), xInterceptT);
+			if (xSpot<xmin) xmin = xSpot;
+			if (xSpot>xmax) xmax = xSpot;
+		}
+		
+		if (yInterceptT >= 0 && yInterceptT <= 1) {
+			double ySpot = quadratic(a.y(), b.y(), c.y(), yInterceptT);
+			if (ySpot<ymin) ymin = ySpot;
+			if (ySpot>ymax) ymax = ySpot;
+		}
+		
+		if (zInterceptT >= 0 && zInterceptT <= 1) {
+			double zSpot = quadratic(a.z(), b.z(), c.z(), zInterceptT);
+			if (zSpot<zmin) zmin = zSpot;
+			if (zSpot>zmax) zmax = zSpot;
+		}
+		
+		return new Rect3d(xmin, ymin, zmin, xmax-xmin, ymax-ymin, zmax-zmin);
 	}
 }

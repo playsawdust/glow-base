@@ -7,6 +7,7 @@ import static com.playsawdust.glow.image.RasterizerUtils.*;
 import com.playsawdust.glow.function.DoubleBiConsumer;
 import com.playsawdust.glow.image.ImageData;
 import com.playsawdust.glow.image.color.RGBColor;
+import com.playsawdust.glow.vecmath.Matrix2;
 import com.playsawdust.glow.vecmath.Vector2d;
 
 public interface Painter {
@@ -50,6 +51,10 @@ public interface Painter {
 	
 	public default void drawLine(double x1, double y1, double x2, double y2, RGBColor color, double lineWeight) {
 		if (Math.abs(x2-x1)==0 && Math.abs(y2-y1)==0) return; //Degenerate line
+		if (lineWeight==1.0) {
+			drawLine(x1, y1, x2, y2, color);
+			return;
+		}
 		
 		Vector2d ab = new Vector2d(x2-x1, y2-y1);
 		ab.normalize();
@@ -67,6 +72,37 @@ public interface Painter {
 				(int) (x2-normal.x()), (int) (y2-normal.y()),
 				color
 				);
+	}
+	
+	public default void drawArrow(double x1, double y1, double x2, double y2, RGBColor color, double lineWeight, double headLength, double headWidth, boolean fill) {
+		
+		Vector2d p1 = new Vector2d(x1, y1);
+		Vector2d p2 = new Vector2d(x2, y2);
+		
+		
+		Vector2d tangent = new Vector2d(x2-x1, y2-y1); //p2-p1
+		double lineLength = tangent.length();
+		if (lineLength==0) return; //We can't even meaningfully point at anything like this
+		tangent = tangent.divide(lineLength); //Same as normalize but reusing the lineLength
+		Vector2d normal = Matrix2.rotate(Math.PI/2).transform(tangent); //rotate to the right 90 degrees to get our second basis vector
+		
+		//Get the line minus the head
+		Vector2d tailLine = tangent.multiply(lineLength-headLength);
+		Vector2d headBase = p1.add(tailLine);
+		drawLine(p1.x(), p1.y(), headBase.x(), headBase.y(), color, lineWeight);
+		
+		//Get the tail points
+		Vector2d headBaseLeft = headBase.subtract(normal.multiply(headWidth));
+		Vector2d headBaseRight = headBase.add(normal.multiply(headWidth));
+		
+		if (fill) {
+			drawLine(p1.x(), p1.y(), headBase.x(), headBase.y(), color, lineWeight);
+			fillTriangle((int) headBaseLeft.x(), (int) headBaseLeft.y(), (int) headBaseRight.x(), (int) headBaseRight.y(), (int) x2, (int) y2, color);
+		} else {
+			drawLine(p1.x(), p1.y(), p2.x(), p2.y(), color, lineWeight);
+			drawLine(p2.x(), p2.y(), headBaseLeft.x(), headBaseLeft.y(), color, lineWeight);
+			drawLine(p2.x(), p2.y(), headBaseRight.x(), headBaseRight.y(), color, lineWeight);
+		}
 	}
 	
 	public default void drawQuadraticCurve(double x1, double y1, double x2, double y2, double x3, double y3, int precision, RGBColor color) {

@@ -14,6 +14,7 @@ package com.playsawdust.glow.vecmath;
  * <p>Note, there is no cross product here. Cross products work in 3d.
  */
 public record Vector2d(double x, double y) {
+	public static final Vector2d ZERO = new Vector2d(0,0);
 	
 	/**
 	 * Gets the length of this vector.
