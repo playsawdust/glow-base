@@ -86,4 +86,13 @@ public record RGBColor(float alpha, float r, float g, float b) {
 		XYZColor modified = new XYZColor(xyz.alpha(), xyz.x(), xyz.y()-amount, xyz.z());
 		return modified.toRgb();
 	}
+	
+	public static RGBColor fromGamma(float alpha, float r, float g, float b) {
+		return new RGBColor(
+				alpha,
+				Colors.gammaElementToLinear(r, Colors.SRGB_GAMMA),
+				Colors.gammaElementToLinear(g, Colors.SRGB_GAMMA),
+				Colors.gammaElementToLinear(b, Colors.SRGB_GAMMA)
+				);
+	}
 }

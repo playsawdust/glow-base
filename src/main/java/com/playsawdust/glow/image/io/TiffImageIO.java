@@ -3,7 +3,6 @@ package com.playsawdust.glow.image.io;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.playsawdust.glow.image.ImageData;

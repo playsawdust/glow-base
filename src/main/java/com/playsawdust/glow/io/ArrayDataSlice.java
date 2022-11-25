@@ -32,14 +32,14 @@ public class ArrayDataSlice implements DataSlice {
 	}
 	
 	@Override
-	public void seek(long offset) {
-		if (offset<0 || offset>length) throw new ArrayIndexOutOfBoundsException();
+	public void seek(long offset) throws IOException {
+		if (offset<0 || offset>length) throw new IOException("Out of bounds.");
 		pointer = (int) offset;
 	}
 	
 	@Override
-	public int read() {
-		if (pointer>=length) throw new ArrayIndexOutOfBoundsException();
+	public int read() throws IOException {
+		if (pointer>=length) throw new IOException("Out of bounds.");
 		int value = data[baseOffset+pointer];
 		pointer++;
 		return value;

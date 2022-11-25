@@ -8,8 +8,6 @@
  */
 package com.playsawdust.glow.image.io.png;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import com.playsawdust.glow.image.io.PngImageIO;

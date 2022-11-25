@@ -10,13 +10,18 @@ package com.playsawdust.glow.image.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.InflaterOutputStream;
 
+import com.playsawdust.glow.image.ImageData;
+import com.playsawdust.glow.image.LinearImageData;
 import com.playsawdust.glow.image.SrgbImageData;
+import com.playsawdust.glow.image.color.RGBColor;
 import com.playsawdust.glow.image.io.png.IDATChunk;
 import com.playsawdust.glow.image.io.png.IHDRChunk;
+import com.playsawdust.glow.image.io.png.PLTEChunk;
 import com.playsawdust.glow.image.io.png.PNGChunk;
 import com.playsawdust.glow.image.io.png.PNGImageDataDecoder;
 import com.playsawdust.glow.io.ArrayDataBuilder;
@@ -36,11 +41,12 @@ public class PngImageIO {
 	public static final int COLORTYPE_GRAY_WITH_ALPHA = 4;
 	public static final int COLORTYPE_RGBA = 6;
 	
-	public static SrgbImageData load(DataSlice in) throws IOException {
+	public static ImageData load(DataSlice in) throws IOException {
 		List<PNGChunk> chunks = loadChunks(in);
 		
 		// Decode
 		IHDRChunk header = null;
+		RGBColor[] palette = null;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		InflaterOutputStream inflater = new InflaterOutputStream(baos);
 		
@@ -49,17 +55,21 @@ public class PngImageIO {
 				inflater.write(data.getRawData().toArray());
 			} else if (chunk instanceof IHDRChunk foundHeader) {
 				header = foundHeader;
+			} else if (chunk instanceof PLTEChunk foundPalette) {
+				palette = foundPalette.palette;
 			}
 		}
 		
 		if (header == null) throw new IOException("Can't find the image header!");
-		if (header.colorType != COLORTYPE_RGB && header.colorType != COLORTYPE_RGBA) throw new IOException("Can't decode color type "+header.colorType+".");
 		
+		ImageData result = (header.bitDepth<=8) ? new SrgbImageData(header.width, header.height) : new LinearImageData(header.width, header.height);
 		inflater.flush();
-		byte[] decompressedImageData = baos.toByteArray();
+		DataSlice imageDataSlice = DataSlice.of(baos.toByteArray());
+		imageDataSlice.setByteOrder(ByteOrder.BIG_ENDIAN);
 		
-		SrgbImageData result = new SrgbImageData(header.width, header.height);
-		PNGImageDataDecoder.decodeSrgb(DataSlice.of(decompressedImageData), result, header.colorType==COLORTYPE_RGBA);
+		if (header.interlaceMethod != IHDRChunk.INTERLACE_NONE) throw new IOException("Can't unpack interlaced images!");
+		
+		PNGImageDataDecoder.decode(imageDataSlice, result, header.colorType, header.bitDepth, palette);
 		
 		return result;
 	}

@@ -38,6 +38,23 @@ public abstract class PNGChunk {
 		if (checkedCrc != crc) {
 			return new RawPNGChunk(chunkType, slice);
 		} else {
+			
+			try {
+				return switch(chunkType) {
+					case IHDRChunk.TYPE_TAG -> new IHDRChunk(chunkType, slice);
+					case IDATChunk.TYPE_TAG -> new IDATChunk(chunkType, slice);
+					case PLTEChunk.TYPE_TAG -> new PLTEChunk(chunkType, slice);
+					case TEXTChunk.TYPE_TAG -> new TEXTChunk(chunkType, slice);
+					case ZTXTChunk.TYPE_TAG -> new ZTXTChunk(chunkType, slice);
+					case GammaChunk.TYPE_TAG-> new GammaChunk(chunkType, slice);
+					case IENDChunk.TYPE_TAG -> new IENDChunk();
+					default -> new RawPNGChunk(chunkType, slice);
+				};
+			} catch (Throwable t) {
+				return new RawPNGChunk(chunkType, slice);
+			}
+			
+			/*
 			switch(chunkType) {
 			
 			case IHDRChunk.TYPE_TAG:
@@ -79,9 +96,9 @@ public abstract class PNGChunk {
 				return new IENDChunk();
 				
 			default:
-				System.out.println("" + (char) ((chunkType >> 24) & 0xFF) + (char) ((chunkType >> 16) & 0xFF) + (char) ((chunkType >> 8) & 0xFF) + (char) (chunkType & 0xFF));
+				//System.out.println("Unknown chunk: " + (char) ((chunkType >> 24) & 0xFF) + (char) ((chunkType >> 16) & 0xFF) + (char) ((chunkType >> 8) & 0xFF) + (char) (chunkType & 0xFF));
 				return new RawPNGChunk(chunkType, slice);
-			}
+			}*/
 			
 		}
 	}
