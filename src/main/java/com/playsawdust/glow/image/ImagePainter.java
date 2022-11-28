@@ -45,5 +45,15 @@ public class ImagePainter implements Painter {
 		RGBColor result = mode.blend(color, dest);
 		target.setPixel(x, y, result);
 	}
+
+	@Override
+	public int getWidth() {
+		return target.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return target.getHeight();
+	}
 	
 }

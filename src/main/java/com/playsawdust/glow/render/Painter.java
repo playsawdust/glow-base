@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 import static com.playsawdust.glow.image.RasterizerUtils.*;
 
-import com.playsawdust.glow.function.DoubleBiConsumer;
 import com.playsawdust.glow.image.ImageData;
+import com.playsawdust.glow.image.Sized;
 import com.playsawdust.glow.image.color.RGBColor;
 import com.playsawdust.glow.vecmath.Matrix2;
 import com.playsawdust.glow.vecmath.Vector2d;
 
-public interface Painter {
+public interface Painter extends Sized {
 	default void drawImage(ImageData image, int x, int y) {
 		drawImage(image, x, y, 0, 0, image.getWidth(), image.getHeight(), 1.0f);
 	}
@@ -25,7 +25,11 @@ public interface Painter {
 	
 	void drawPixel(int x, int y, RGBColor color);
 	
-	public default void drawLine(double x1, double y1, double x2, double y2, RGBColor color) {
+	default void clear(RGBColor color) {
+		
+	}
+	
+	default void drawLine(double x1, double y1, double x2, double y2, RGBColor color) {
 		double dx = x2-x1;
 		double dy = y2-y1;
 		double scale = Math.max(Math.abs(dx), Math.abs(dy));

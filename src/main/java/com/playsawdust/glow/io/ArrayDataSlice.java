@@ -74,7 +74,7 @@ public class ArrayDataSlice implements DataSlice {
 	}
 	
 	@Override
-	public byte[] arraycopy(long offset, int length) throws IOException {
+	public byte[] arraycopy(long offset, int length) {
 		byte[] result = new byte[length];
 		System.arraycopy(data, (int) offset, result, 0, length);
 		return result;
@@ -95,4 +95,8 @@ public class ArrayDataSlice implements DataSlice {
 		// Do Nothing
 	}
 	
+	@Override
+	public byte[] toArray() {
+		return arraycopy(0, length);
+	}
 }
