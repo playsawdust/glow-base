@@ -1,3 +1,11 @@
+/**
+ * Glow - GL Object Wrapper
+ * Copyright (C) 2020-2024 the Chipper developers
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package com.playsawdust.glow.render;
 
 import java.util.Iterator;
@@ -9,6 +17,7 @@ import com.playsawdust.glow.model.Material;
 import com.playsawdust.glow.model.Mesh;
 import com.playsawdust.glow.model.Model;
 import com.playsawdust.glow.model.ShaderAttribute;
+import com.playsawdust.glow.model.ShaderAttributeHolder;
 import com.playsawdust.glow.vecmath.Matrix4;
 import com.playsawdust.glow.vecmath.Vector3d;
 
@@ -31,6 +40,8 @@ public interface Renderer {
 					Mesh.Vertex vb = iterator.next();
 					Mesh.Vertex vc = iterator.next();
 					
+					drawTriangle(va, vb, vc, material, null);
+					/*
 					Vector3d a = va.get(ShaderAttribute.POSITION);
 					Vector3d b = vb.get(ShaderAttribute.POSITION);
 					Vector3d c = vc.get(ShaderAttribute.POSITION);
@@ -39,7 +50,7 @@ public interface Renderer {
 						fillTriangle(a.x(), a.y(), a.z(), b.x(), b.y(), b.z(), c.x(), c.y(), c.z(), backupColor);
 					} else {
 						textureTriangle(a.x(), a.y(), a.z(), b.x(), b.y(), b.z(), c.x(), c.y(), c.z(), texture);
-					}
+					}*/
 				}
 			} else {
 				RGBColor color = material.get(ShaderAttribute.DIFFUSE_COLOR, new RGBColor(1,1,1,1));
@@ -63,7 +74,7 @@ public interface Renderer {
 	}
 	
 	void fillTriangle(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, RGBColor color);
-	void textureTriangle(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, ImageData texture);
+	void drawTriangle(Mesh.Vertex a, Mesh.Vertex b, Mesh.Vertex c, Material material, ShaderAttributeHolder environment);
 	
 	Matrix4 getTransform();
 	void setTransform(Matrix4 transform);

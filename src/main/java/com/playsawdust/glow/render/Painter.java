@@ -1,3 +1,11 @@
+/**
+ * Glow - GL Object Wrapper
+ * Copyright (C) 2020-2024 the Chipper developers
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package com.playsawdust.glow.render;
 
 import java.util.Arrays;
@@ -26,7 +34,11 @@ public interface Painter extends Sized {
 	void drawPixel(int x, int y, RGBColor color);
 	
 	default void clear(RGBColor color) {
-		
+		for(int y=0; y<getHeight(); y++) {
+			for(int x=0; x<getWidth(); x++) {
+				drawPixel(x, y, color);
+			}
+		}
 	}
 	
 	default void drawLine(double x1, double y1, double x2, double y2, RGBColor color) {
