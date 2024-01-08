@@ -4,6 +4,10 @@ plugins {
 	id "com.github.hierynomus.license" version "0.16.1"
 }
 
+archivesBaseName = "Glow_Base";
+version = "0.0.1";
+group = "com.playsawdust.glow";
+
 java {
 	toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -50,6 +54,5 @@ publishing {
 	}
 	
 	repositories {
-		//TODO: Repositories to publish to
 	}
 }
