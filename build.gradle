@@ -10,7 +10,7 @@ group = "com.playsawdust.glow";
 
 java {
 	toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -27,15 +27,16 @@ dependencies {
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
+
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
 	//Only here for wide IDE compatibility
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 test {
@@ -54,5 +55,59 @@ publishing {
 	}
 	
 	repositories {
+	}
+}
+
+publishing {
+	publications {
+		mavenPrimary(MavenPublication) {
+			from components.java;
+
+
+			groupId project.group;
+			artifactId "glow-base";
+			version project.version;
+
+			pom {
+				name = "Glow - Base";
+				description = "Platform-Agnostic Graphics API";
+				url = "https://github.com/playsawdust/glow-base";
+
+				developers {
+					developer {
+						id = "falkreon"
+						name = "Isaac Ellingson"
+						email = "falkreon@gmail.com"
+					}
+				}
+
+				licenses {
+					license {
+						name = "MIT License"
+						url = "https://opensource.org/licenses/MIT"
+						distribution = "repo"
+					}
+				}
+
+				scm {
+					url = "https://github.com/playsawdust/glow-base"
+					connection = "scm:git@github.com:playsawdust/glow-base.git"
+					developerConnection = "scm:git@github.com:playsawdust/glow-base.git"
+				}
+			}
+		}
+	}
+
+	repositories {
+		if (project.hasProperty("sleepingUsername")) {
+			maven {
+				url "https://repo-api.sleeping.town/"
+
+				credentials {
+					username = sleepingUsername
+					password = sleepingPassword
+				}
+			}
+		}
 	}
 }
