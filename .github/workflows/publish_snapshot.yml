@@ -1,5 +1,8 @@
 name: Build and publish snapshot
 
+on:
+  push:
+
 jobs:
   publish:
     name: Publish `-SNAPSHOT` artifact to Sleeping Town maven
