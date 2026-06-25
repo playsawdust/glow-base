@@ -1,16 +1,19 @@
 plugins {
 	id "java-library"
 	id "maven-publish"
-	id "com.github.hierynomus.license" version "0.16.1"
+	//id "com.github.hierynomus.license" version "0.16.1"
 }
 
-archivesBaseName = "Glow_Base";
+base {
+	archivesName = "glow-base";
+}
+
 version = "0.0.1";
 group = "com.playsawdust.glow";
 
 java {
 	toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -25,27 +28,28 @@ dependencies {
 	
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 
-tasks.withType(JavaCompile).configureEach {
-	it.options.encoding = "UTF-8"
-	it.options.release = 21
-}
+//tasks.withType(JavaCompile).configureEach {
+//	it.options.encoding = "UTF-8"
+//	it.options.release = 25
+//}
 
-java {
+//java {
 	//Only here for wide IDE compatibility
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
-}
+//	sourceCompatibility = JavaVersion.VERSION_25
+//	targetCompatibility = JavaVersion.VERSION_25
+//}
 
 test {
 	useJUnitPlatform()
 }
 
-license {
-	header rootProject.file('HEADER')
-}
+//license {
+//	header rootProject.file('HEADER')
+//}
 
 publishing {
 	publications {
@@ -100,6 +104,7 @@ publishing {
 
 	repositories {
 		if (project.hasProperty("sleepingUsername")) {
+			print "Publication credentials applied,"
 			maven {
 				url "https://repo-api.sleeping.town/"
 
@@ -108,6 +113,8 @@ publishing {
 					password = sleepingPassword
 				}
 			}
+		} else {
+			print "There were no credentials available for publication."
 		}
 	}
 }
