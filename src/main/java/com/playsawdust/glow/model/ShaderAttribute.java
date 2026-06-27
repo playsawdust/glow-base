@@ -12,16 +12,7 @@ import com.playsawdust.glow.image.color.RGBColor;
 import com.playsawdust.glow.vecmath.Vector2d;
 import com.playsawdust.glow.vecmath.Vector3d;
 
-public class ShaderAttribute<T> {
-	protected final String name;
-	
-	public ShaderAttribute(String name) {
-		this.name = name;
-	}
-	
-	public String getName() {
-		return name;
-	}
+public record ShaderAttribute<T>(String name) {
 	
 	public static final ShaderAttribute<String> DIFFUSE_TEXTURE = new ShaderAttribute<>("diffuse_texture");
 	public static final ShaderAttribute<String> SPECULAR_TEXTURE = new ShaderAttribute<>("specular_texture");

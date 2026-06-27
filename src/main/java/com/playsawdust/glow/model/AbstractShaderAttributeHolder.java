@@ -46,7 +46,7 @@ public class AbstractShaderAttributeHolder implements ShaderAttributeHolder {
 		if (!attributes.isEmpty()) {
 			for(Map.Entry<ShaderAttribute<?>, Object> entry : attributes.entrySet()) {
 				result.append("\"");
-				result.append(entry.getKey().getName());
+				result.append(entry.getKey().name());
 				result.append("\": ");
 				result.append(entry.getValue().toString());
 				result.append(", ");
