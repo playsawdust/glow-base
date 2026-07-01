@@ -37,7 +37,7 @@ public class Identifier {
 	public String path() {
 		int idx = value.indexOf(':');
 		if (idx == -1) return "";
-		return value.substring(idx, value.length());
+		return value.substring(idx+1, value.length());
 	}
 	
 	public String[] pathElements() {
